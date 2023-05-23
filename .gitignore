@@ -1,0 +1,12 @@
+*.swp
+*.swo
+local_settings.py
+venv/**
+venv
+venv/
+/venv/
+/venv
+error.log
+push.sh
+ourplan.db
+**/ourplan.db
