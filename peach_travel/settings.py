@@ -132,9 +132,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.1/howto/static-files/
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static_root')
+print("root;"+str(STATIC_ROOT))
 STATICFILES_DIRS = (
   os.path.join(BASE_DIR, 'static'),
-  '/Users/mana/website/ourplan.live/static/',
+  '/Users/mana/website/peachtravel/static/',
 )
 APPEND_SLASH = False
-import peach_travel.local_settings
+# import peach_travel.local_settings

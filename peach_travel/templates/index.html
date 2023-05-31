@@ -1,4 +1,7 @@
 {% load static %}
+<!-- todo -->
+<!-- first day of month offset -->
+<!-- move cities up and down -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <html>
 <body>
@@ -11,6 +14,10 @@
 <div id="menu">
     <label for="tripName">Trip Name:</label>
     <input id="tripName" type="text" value="My Trip" />
+    <br />
+    <br />
+    <label for="monthStartDate">Month Start Date:</label>
+    <input id="monthStartDate" type="number" value="1" min="1" />
     <br />
     <br />
     <label for="startDate">Start Date:</label>
@@ -27,11 +34,6 @@
       </thead>
       <tbody id="cities">
         <tr>
-          <td><button class="deleteCity">Remove</button></td>
-          <td><input type="text" class="city" /></td>
-          <td>
-            <input class="numDays" type="number" value="1" min="1" />
-          </td>
         </tr>
 
       </tbody>
@@ -48,7 +50,7 @@
 
 <script> const csrf = "{{ csrf }}" </script>
 <script src="/static/js/jquery-min.js"></script>
-<script src="/static/js/main.js"></script>
+<script src="/static/js/main.js?nocache={{ now }}"></script>
 
 </body>
 </html>

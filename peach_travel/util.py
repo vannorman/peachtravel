@@ -88,6 +88,7 @@ def renderWithNav(request, template, obj = None, cookies = None):
         obj = {}    
     obj['safari'] = False
     obj["csrf"] = get_or_create_csrf_token(request)
+    obj["now"] = time.time() 
     obj["version"] =  "?" + str(time.time())
     response = render(request, template, obj)
     return response

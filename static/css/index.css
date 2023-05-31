@@ -65,3 +65,24 @@ content: "";
 .numDays {
     width:40px;
 }
+
+.up, .down {
+    width:10px;
+    height:10px;
+    border: 1px solid black;
+    font-size:0.8em;
+
+}
+.up:hover, .down:hover{
+    cursor:pointer;
+}
+
+.disabled {
+    pointer-events:none;
+    background-color:none;
+    border:none;
+}
+
+#cities td {
+    height:36px;
+}

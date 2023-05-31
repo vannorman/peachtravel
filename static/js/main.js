@@ -1,4 +1,5 @@
 $(document).ready(function(){
+    UpdateCalendar();
     $('#load').on('click',function(){
         ajax.Load();
     })
@@ -9,13 +10,20 @@ $(document).ready(function(){
 
     // Add city
     $('#addCity').on('click',function(){
-       $('#cities').append(cityHtml);
        var newCity= Object.assign({}, city)
        trip.cities.push(newCity);
+       UpdateCalendar();
+       UpdateGUI(trip);
+
     });
 
     $(document).on('click', '.deleteCity', function() {
-        $(this).closest('tr').remove();
+        let rowToDelete = $(this).parent().parent().index();
+        trip.cities.splice(rowToDelete,1);
+        UpdateCalendar();
+        UpdateGUI(trip);
+//        $(this).closest('tr').remove();
+        
       //code here ....
     });
 
@@ -25,6 +33,13 @@ $(document).ready(function(){
             trip.startDate = parseInt(date);
             UpdateCalendar()
         }
+
+        if ($(this).attr('id') === "monthStartDate") {
+            let date = $(this).val();
+            trip.monthStartDate = parseInt(date);
+            UpdateCalendar()
+        }
+
 
         if ($(this).attr('class') === "city"){
             let row = $(this).closest('tr').index();
@@ -38,7 +53,31 @@ $(document).ready(function(){
         }
     //    console.log('ch:'+$(this).val());
     });
+
+    $(document).on('click', '.up', function() {
+        let row = $(this).closest('tr').index();
+        let a = trip.cities[row];
+        let b = trip.cities[row-1];
+        trip.cities[row] = b;
+        trip.cities[row-1] = a;
+        UpdateCalendar();
+        UpdateGUI(trip);
+    });
+
+    $(document).on('click', '.down', function() {
+        let row = $(this).closest('tr').index();
+        let a = trip.cities[row];
+        let b = trip.cities[row+1];
+        trip.cities[row] = b;
+        trip.cities[row+1] = a;
+        UpdateCalendar();
+        UpdateGUI(trip);
+    });
+
+
 });
+
+
 var ajax ={ 
     Load(){
         $.ajax({
@@ -52,7 +91,7 @@ var ajax ={
                 $('#loaded').text(tripJson); 
                 console.log(tripJson);
                 trip = tripJson;
-                UpdateTripInputs(trip);
+                UpdateGUI(trip);
                 UpdateCalendar();
             },
             error: function (e) {
@@ -90,30 +129,19 @@ var ajax ={
 }
 
 
-// Add rows of boxes for the calendar
-document.addEventListener("DOMContentLoaded", function() {
-
-  for (var i = 1; i < 30; i++) {
-    $('.calendar').append($('<div class="box" id="box'+i+'"><div class="num">'+i+'</div><div class="city"></div></div>'));
-  }
-});
-
 
 var city = {
     name : "new city",
     days : 1
 }
 
-var cityHtml = '<tr><td><button class="deleteCity">Remove</button></td><td><input type="text" class="city"></td><td><input class="numDays" type="number" value="1" min="1"></td></tr> ';
+var cityHtml = '<tr><td><button class="deleteCity">Remove</button></td><td><input type="text" class="city"></td><td><input class="numDays" type="number" value="1" min="1"></td><td><div class="up">^</div><div class="down">v</div></tr> ';
 
 
 var trip = {
+    monthStartDate : 0,
     startDate : 1,
     cities : [
-        {
-            name : "empty",
-            days : 1,
-        },
     ],
 }
 
@@ -124,7 +152,7 @@ var tripUtils = {
 }
 
 
-function UpdateTripInputs(tripData){
+function UpdateGUI(tripData){
     // After loading the trip from the server, we need to update the trip inputs to match it
     
     $('#cities').html(''); // Clear all cities
@@ -134,16 +162,34 @@ function UpdateTripInputs(tripData){
         let city = tripData.cities[i];
         let newCity = $(cityHtml);
         $('#cities').append(cityHtml);
-        console.log("i+1:"+(i)+", city name:"+city.name);
+//        console.log("i+1:"+(i)+", city name:"+city.name);
         $('#cities tr:eq('+(i)+')').find('.city').val(city.name)
         $('#cities tr:eq('+(i)+')').find('.numDays').val(city.days)
+        if (i == 0) {
+            $('#cities tr:eq('+(i)+')').find('.up').addClass('disabled');
+        }
+        if (i == tripData.cities.length - 1){
+            $('#cities tr:eq('+(i)+')').find('.down').addClass('disabled');
 
+        }
     }
 
     
 } 
 
 function UpdateCalendar(){
+
+    // Repaint empty calendar
+    $('.calendar').text('');
+    for(let i=0; i<trip.monthStartDate; i++){
+        $('.calendar').append($('<div class="box"></div>'));
+        
+    }
+    for (var i = 1; i < 30; i++) {
+        $('.calendar').append($('<div class="box" id="box'+i+'"><div class="num">'+i+'</div><div class="city"></div></div>'));
+    }
+
+
     $('.box').css('background','#e0e0e0');
     $('#box'+trip.startDate).css('background','#abc');
     $('.box').each(function(){
@@ -166,5 +212,14 @@ function UpdateCalendar(){
         }
         days += trip.cities[i].days;
     }
+
+    // Repaint the GUI
+//    $('#cities').text('');
+//    for(let i=0;i<trip.cities.length;i++){
+//        let $newCity = $(cityHtml);
+//        $('#cities').append($newCity);
+//        $newCity.find('.city').val(trip.cities[i].name);
+//    }
+    
 
 }
