@@ -9,19 +9,16 @@
 <link rel="shortcut icon" type="image/png" href="/static/img/sun.png">
 <link rel="stylesheet" href="/static/css/index.css?{{ now  }}" />
 
-
 <div class="calendar"></div>
 <div id="menu">
     <label for="tripName">Trip Name:</label>
     <input id="tripName" type="text" value="My Trip" />
     <br />
     <br />
-    <label for="monthStartDate">Month Start Date:</label>
-    <input id="monthStartDate" type="number" value="1" min="1" />
-    <br />
-    <br />
-    <label for="startDate">Start Date:</label>
-    <input id="startDate" type="number" value="1" min="1" />
+
+    <label for="dateofbirth">Start Date:</label>
+    <input type="date" name="startDate" id="startDate">
+
     <br />
     <br />
     
@@ -50,6 +47,7 @@
 
 <script> const csrf = "{{ csrf }}" </script>
 <script src="/static/js/jquery-min.js"></script>
+<link rel='stylesheet' src="/static/css/date.css?nocache={{ now }}"></link>
 <script src="/static/js/main.js?nocache={{ now }}"></script>
 
 </body>

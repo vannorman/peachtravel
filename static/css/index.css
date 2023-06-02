@@ -21,7 +21,11 @@ body {
   width: 70vw;
 }
 
-
+.monthTitle {
+    width:100%;
+    font-size:2.5em;
+    text-align:center;
+}
 .box {
   width: calc(100% / 7); /* Set the width to occupy 1/7th of the container */
   height:100px;
