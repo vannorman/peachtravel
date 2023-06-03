@@ -4,10 +4,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <html>
 <body>
-<title> Our Plan</title>
+<title>Peach Travel </title>
 <link rel="shortcut icon" type="image/png" href="/static/img/sun.png">
 <link rel="stylesheet" href="/static/css/index.css?{{ now  }}" />
-
+  
 <div class="calendar"></div>
 <div id="menu">
     <label for="tripName">Trip Name:</label>
@@ -48,6 +48,31 @@
 <script src="/static/js/jquery-min.js"></script>
 <link rel='stylesheet' src="/static/css/date.css?nocache={{ now }}"></link>
 <script src="/static/js/main.js?nocache={{ now }}"></script>
+
+<!-- facebook auth -->
+<script>
+  window.fbAsyncInit = function() {
+    FB.init({
+      appId      : '{your-app-id}',
+      cookie     : true,
+      xfbml      : true,
+      version    : '{api-version}'
+    });
+
+    FB.AppEvents.logPageView();
+
+  };
+
+  (function(d, s, id){
+     var js, fjs = d.getElementsByTagName(s)[0];
+     if (d.getElementById(id)) {return;}
+     js = d.createElement(s); js.id = id;
+     js.src = "https://connect.facebook.net/en_US/sdk.js";
+     fjs.parentNode.insertBefore(js, fjs);
+   }(document, 'script', 'facebook-jssdk'));
+</script>
+
+
 
 </body>
 </html>

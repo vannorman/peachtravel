@@ -18,7 +18,7 @@ body {
 .calendar {
   display: flex;
   flex-wrap: wrap;
-  width: 70vw;
+  width: 64vw;
 }
 
 .monthTitle {
@@ -58,7 +58,7 @@ content: "";
 #menu {
     position:fixed;
     right:0;
-    top:0;
+    top:50;
     width:30vw;
 }
 
