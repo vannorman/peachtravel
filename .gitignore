@@ -11,3 +11,4 @@ error.log
 push.sh
 ourplan.db
 **/ourplan.db
+peachtravel.wsgi
