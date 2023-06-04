@@ -38,6 +38,7 @@ def setup():
     ''')
 
     conn.commit()
+    conn.close()
 
 def get_or_create_user(new_user_id):
     conn = sqlite3.connect(DB_NAME)  
@@ -57,6 +58,7 @@ def get_or_create_user(new_user_id):
 
     cursor.execute('SELECT * FROM users WHERE email = ?', (user_id,))
     user = cursor.fetchone()
+    conn.close()
     return user
 
 
@@ -65,6 +67,7 @@ def get_trip(user_id, trip_name):
     cursor = conn.cursor()
     cursor.execute('SELECT trip_json FROM trips WHERE user_id = ? AND trip_name = ?', (user_id,trip_name))
     trip = cursor.fetchone()
+    conn.close()
     return trip
 
 
@@ -89,8 +92,10 @@ def get_trips_for_user(user_id):
         trip_list = [dict(zip(columns, trip)) for trip in trips]
 
         print("got trip! "+str(trips))
+        conn.close()
         return trip_list
     else:
+        conn.close()
         print("NO SUCH USER: "+user_id)
 
 
@@ -111,6 +116,7 @@ def create_or_update_trip(user_id, trip_name, trip_json):
         cursor.execute('INSERT INTO trips (trip_name, trip_json, user_id) VALUES (?, ?, ?)', (trip_name, trip_json, user_id))
         conn.commit()
         trip_id = cursor.lastrowid
+    conn.close()
 
     return trip_id
 
@@ -125,8 +131,10 @@ def delete_trip(user_id, trip_name):
         # Update the existing trip with the same title
         cursor.execute('DELETE FROM trips WHERE user_id = ? AND trip_name = ?', (user_id, trip_name))
         conn.commit()
+        conn.close()
         return "Successfully deleted trip: "+trip_name+" from "+user_id
     else:
+        conn.close()
         return "No trip with name: "+trip_name+" exists for user: "+user_id
 
 def check_trip_exists(user_id, trip_name):
@@ -137,8 +145,10 @@ def check_trip_exists(user_id, trip_name):
     existing_trip = cursor.fetchone()
 
     if existing_trip:
+        conn.close()
         return True
     else:
+        conn.close()
         return False
         # Update the existing trip with the same title
 
