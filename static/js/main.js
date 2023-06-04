@@ -160,9 +160,9 @@ var ajax ={
                     let tripName = e.data[trip].trip_name;
                     trip_data = JSON.parse(e.data[trip].trip_json);
                     let cities = [];
-                    for (city in trip_data.cities) { 
-                        let cityName = trip_data.cities[city].name;
-                        let days =trip_data.cities[city].days;
+                    for (c in trip_data.cities) { 
+                        let cityName = trip_data.cities[c].name;
+                        let days =trip_data.cities[c].days;
                         let daysText = days == 1 ? "day" : "days";
                         cities.push(cityName+" ("+days+" " +daysText+")"); 
                     }
@@ -323,12 +323,12 @@ function UpdateGUI(tripData){
 
     // Populate cities from trip data
     for(var i=0;i<tripData.cities.length;i++){
-        let city = tripData.cities[i];
+        let thisCity = tripData.cities[i];
         let newCity = $(cityHtml);
         $('#cities').append(cityHtml);
 //        console.log("i+1:"+(i)+", city name:"+city.name);
-        $('#cities tr:eq('+(i)+')').find('.city').val(city.name)
-        $('#cities tr:eq('+(i)+')').find('.numDays').val(city.days)
+        $('#cities tr:eq('+(i)+')').find('.city').val(thisCity.name)
+        $('#cities tr:eq('+(i)+')').find('.numDays').val(thisCity.days)
         if (i == 0) {
             $('#cities tr:eq('+(i)+')').find('.up').addClass('disabled');
         }
