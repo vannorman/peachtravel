@@ -26,14 +26,24 @@ $(document).ready(function(){
     $(document).on('click', '.loadTrip', function() {
         ajax.Load($(this).attr('trip_name'));
     });
+    $(document).on('click', '.deleteTrip', function() {
+        let trip_name = $(this).attr('trip_name');
+        event.preventDefault();
+        if (window.confirm("Are you sure (delete "+trip_name+")?")) {
+            ajax.Delete(trip_name);
+        }
+    });
+
     $('#closeTrips').on('click',function(){
         $('#savedTrips').hide();
-    })
+    });
+
     $('#load').on('click',function(){
         ajax.Load();
-    })
+    });
+
     $('#save').on('click',function(e){
-        ajax.Save();
+        ajax.PreSaveNameCheck();
     });
 
 
@@ -148,20 +158,24 @@ var ajax ={
                 $('#savedTripsList').html('');
                 for (var trip in e.data){
                     let tripName = e.data[trip].trip_name;
-                    $('#savedTripsList').append("<li><button class='loadTrip' trip_name='"+tripName+"'>"+"Load "+tripName+"</button>");
-//                    console.log(e.data[trip]); //JSON.parse(e.data[trip].trip_json).cities)
-                    // console.log(JSON.parse(e.data[trip].trip_json).cities)
                     trip_data = JSON.parse(e.data[trip].trip_json);
+                    let cities = [];
                     for (city in trip_data.cities) { 
-                       let cityName = trip_data.cities[city].name; 
-                        $('#savedTripsList').append(cityName+", "); 
-
+                        let cityName = trip_data.cities[city].name;
+                        let days =trip_data.cities[city].days;
+                        let daysText = days == 1 ? "day" : "days";
+                        cities.push(cityName+" ("+days+" " +daysText+")"); 
                     }
+                    let citiesText = cities.join(", ")
 
-                    $('#savedTripsList').append("</li>"); 
+                    $('#savedTripsList').append("<li>"+
+                        "<button class='loadTrip' trip_name='"+tripName+"'>"+"Load "+tripName+"</button> " +
+                        citiesText +
+                        "<button class='deleteTrip' trip_name='"+tripName+"'>"+"Delete "+tripName+"</button> " +
+                        "</li>");
 
                 }
-
+                $('#numSavedTrips').text(e.data.length)
             },
             error: function (e) {
                 console.log("error:"+JSON.stringify(e));
@@ -193,10 +207,39 @@ var ajax ={
         });
 
     },
-
+    PreSaveNameCheck(){
+        $.ajax({
+            type: 'POST',
+            url: "/preSaveNameCheck",
+            headers: {
+                "X-CSRFToken" : csrf,
+                "Content-Type": "application/json"
+            },
+            data : JSON.stringify({ trip_name : trip.name, trip_json : JSON.stringify(trip) }),
+            success: function (e) {
+                  console.log('name check success:'+JSON.stringify(e).trim(0,200));
+                  name_exists = e["name_exists"];
+                  console.log("Name exists:"+name_exists);
+                  if (name_exists && window.confirm("Name "+trip.name+" exists! Overwrite? ")){
+                    ajax.Save();
+                  } else {
+                    console.log("Name "+trip.name+" did not exist, saving new.");
+                  }
+                  //$('div[
+            },
+            error: function (e) {
+                console.log("setting save err: "+ JSON.stringify(e).trim(0,200));
+//                $('html').html(JSON.stringify(e));
+            },
+        });
+    
+    },
     Save(){
-        console.log("starting save");
-        
+        if (trip.cities.length == 0) alert('You have no cities. Add a city before saving a trip');  
+
+    
+
+
         $.ajax({
             type: 'POST',
             url: "/save",
@@ -208,6 +251,27 @@ var ajax ={
             success: function (e) {
                   console.log('settings save success:'+JSON.stringify(e).trim(0,200));
                   //$('div[
+            },
+            error: function (e) {
+                console.log("setting save err: "+ JSON.stringify(e).trim(0,200));
+//                $('html').html(JSON.stringify(e));
+            },
+        });
+        event.preventDefault();
+    },
+    Delete(trip_name){
+        $.ajax({
+            type: 'POST',
+            url: "/delete",
+            headers: {
+                "X-CSRFToken" : csrf,
+                "Content-Type": "application/json"
+            },
+            data : JSON.stringify({ trip_name : trip_name }),
+            success: function (e) {
+                  console.log('dlete success:'+JSON.stringify(e).trim(0,200));
+                  //$('div[
+                  ajax.LoadAll();
             },
             error: function (e) {
                 console.log("setting save err: "+ JSON.stringify(e).trim(0,200));
@@ -229,7 +293,7 @@ var cityHtml = '<tr><td><button class="deleteCity">Remove</button></td><td><inpu
 
 
 var trip = {
-    name,
+    name : "My Trip",
     monthStartDate : 0,
     startDay : null, //Date(), // returns the current local day
     startDate : null,

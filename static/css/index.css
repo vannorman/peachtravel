@@ -31,6 +31,14 @@ body {
     border:3px solid #444;
     background-color:#eee;
 }
+#savedTrips .header {
+    text-align:center;
+}
+
+#savedTrips ul {
+    width:70%;
+    left:15%;
+}
 
 #closeTrips {
    position:relative;
@@ -127,4 +135,13 @@ content: "";
 
 #cities td {
     height:36px;
+}
+
+button:hover{
+    cursor:pointer;
+}
+
+.deleteTrip {
+    background-color:#c33;
+    float:right;
 }

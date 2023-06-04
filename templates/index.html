@@ -6,7 +6,7 @@
 <body>
 <title>Peach Travel </title>
 <link rel="shortcut icon" type="image/png" href="/static/img/sun.png">
-<link rel="stylesheet" href="/static/css/index.css?{{ now  }}" />
+<link rel="stylesheet" href="/static/css/index.css?nocache={{ now  }}" />
   
 <div id="header">
     Login
@@ -18,7 +18,7 @@
         <div id="hello">
           {% if session %}
               <h1>Welcome {{session.user.userinfo.name}}!</h1>
-              You have {{ trips|length }} saved trips. 
+              You have <span id="numSavedTrips"> {{ trips|length }} </span> saved trips. 
                 <button id="loadTrips"> Load a trip</button>
               <p><a href="/logout">Logout</a></p>
               <div><pre>{{pretty}}</pre></div>
@@ -28,7 +28,8 @@
           {% endif %}
             <div id="savedTrips">
                 <div id="closeTrips">X</div>
-                <div id="savedTripsList"></div>
+                <div class="header"><h2>{{session.user.userinfo.given_name}}'s Trips </h2></div>
+                <ul id="savedTripsList"></ul>
             </div>
         </div>
         <label for="tripName">Trip Name:</label>
@@ -41,6 +42,8 @@
 
         <br />
         <br />
+        <button id="addCity" value="Add city"> Add City </button>
+        <button id="save"> Save </button> 
         
         <table>
           <thead>
@@ -56,12 +59,9 @@
           </tbody>
         </table>
 
-        <button id="addCity" value="Add city"> Add City </button>
         <br />
         <br />
 
-        <button id="save"> Save </button> <span style="color:red">Saving the same name will overwrite!</span>
-        <div id="loaded" style="border:1px solid black;width:200px;height:30px;">utest</div>
     </div>
 </div>
 <script> const csrf = "{{ csrf }}" </script>

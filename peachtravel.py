@@ -94,7 +94,7 @@ def load_trip():
 
 
 
-@app.route('/save', methods=['POST'])
+@app.route('/delete', methods=['POST'])
 def create_trip():
     if "user" in session and session["user"] is not None:
         print("~~ got user:"+session["user"]["userinfo"]["email"])
@@ -108,14 +108,44 @@ def create_trip():
 
     data = request.get_json()
     trip_name = data.get('trip_name')
-    trip_json = data.get('trip_json')
 
-    # get user id from session
+    result = db.delete_trip(user_id,trip_name)
+
+    return jsonify({'success':True,'message': result})
+
+@app.route('/preSaveNameCheck', methods=['POST'])
+def check_name_exists():
     if "user" in session and session["user"] is not None:
+        print("~~ got user:"+session["user"]["userinfo"]["email"])
         user_id = session["user"]["userinfo"]["email"]
     else:
-        return jsonify({'success':False,'message': "Not logged in"})
-        
+        print("~~ no user")
+        return redirect(url_for('home'))
+    
+    # create the user if not exists
+    user = db.get_or_create_user(user_id)
+
+    data = request.get_json()
+    trip_name = data.get('trip_name')
+    name_exists = db.check_trip_exists(user_id,trip_name)
+
+    return jsonify({'success':True,'name_exists': name_exists})
+
+@app.route('/save', methods=['POST'])
+def delete_trip():
+    if "user" in session and session["user"] is not None:
+        print("~~ got user:"+session["user"]["userinfo"]["email"])
+        user_id = session["user"]["userinfo"]["email"]
+    else:
+        print("~~ no user")
+        return redirect(url_for('home'))
+    
+    # create the user if not exists
+    user = db.get_or_create_user(user_id)
+
+    data = request.get_json()
+    trip_name = data.get('trip_name')
+    trip_json = data.get('trip_json')
 
     trip_id = db.create_or_update_trip(user_id,trip_name,trip_json)
 

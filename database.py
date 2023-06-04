@@ -113,3 +113,32 @@ def create_or_update_trip(user_id, trip_name, trip_json):
         trip_id = cursor.lastrowid
 
     return trip_id
+
+def delete_trip(user_id, trip_name):
+    conn = sqlite3.connect(DB_NAME)  
+    cursor = conn.cursor()
+    # Check if the trip with the same title already exists
+    cursor.execute('SELECT * FROM trips WHERE user_id = ? AND trip_name = ?', (user_id, trip_name))
+    existing_trip = cursor.fetchone()
+
+    if existing_trip:
+        # Update the existing trip with the same title
+        cursor.execute('DELETE FROM trips WHERE user_id = ? AND trip_name = ?', (user_id, trip_name))
+        conn.commit()
+        return "Successfully deleted trip: "+trip_name+" from "+user_id
+    else:
+        return "No trip with name: "+trip_name+" exists for user: "+user_id
+
+def check_trip_exists(user_id, trip_name):
+    conn = sqlite3.connect(DB_NAME)  
+    cursor = conn.cursor()
+    # Check if the trip with the same title already exists
+    cursor.execute('SELECT * FROM trips WHERE user_id = ? AND trip_name = ?', (user_id, trip_name))
+    existing_trip = cursor.fetchone()
+
+    if existing_trip:
+        return True
+    else:
+        return False
+        # Update the existing trip with the same title
+
