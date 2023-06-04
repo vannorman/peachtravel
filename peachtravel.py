@@ -64,6 +64,35 @@ def logout():
     )
 
 
+@app.route('/load_all', methods=['POST'])
+def load_all_trips():
+    if "user" in session and session["user"] is not None:
+        print("~~ got user:"+session["user"]["userinfo"]["email"])
+        user_id = session["user"]["userinfo"]["email"]
+    else:
+        print("~~ no user")
+        return redirect(url_for('home'))
+    
+    trips = db.get_trips_for_user(user_id)
+    return jsonify({'success':True,'data':trips}) 
+
+
+@app.route('/load', methods=['POST'])
+def load_trip():
+    if "user" in session and session["user"] is not None:
+        print("~~ got user:"+session["user"]["userinfo"]["email"])
+        user_id = session["user"]["userinfo"]["email"]
+    else:
+        print("~~ no user")
+        return redirect(url_for('home'))
+    
+    data = request.get_json()
+    trip_name = data.get('trip_name')
+    trip_json = db.get_trip(user_id,trip_name)
+    return jsonify({'success':True,'trip_json':trip_json}) 
+
+
+
 
 @app.route('/save', methods=['POST'])
 def create_trip():
@@ -105,9 +134,14 @@ def home():
         print("~~ no user")
         trips = "none, not logged in"
 
+    print(str(trips))
+
     return render_template('index.html', now=now, trips=trips)
 
 if __name__ == '__main__':
     app.run()
 
+@app.template_filter('parse_json')
+def parse_json(value):
+    return json.loads(value)
 

@@ -18,14 +18,18 @@
         <div id="hello">
           {% if session %}
               <h1>Welcome {{session.user.userinfo.name}}!</h1>
-              Your trips: {{ trips }}
+              You have {{ trips|length }} saved trips. 
+                <button id="loadTrips"> Load a trip</button>
               <p><a href="/logout">Logout</a></p>
               <div><pre>{{pretty}}</pre></div>
           {% else %}
             <h1>Welcome Guest</h1>
             <p><a href="/login">Login</a></p>
           {% endif %}
-
+            <div id="savedTrips">
+                <div id="closeTrips">X</div>
+                <div id="savedTripsList"></div>
+            </div>
         </div>
         <label for="tripName">Trip Name:</label>
         <input id="tripName" type="text" value="My Trip" />
@@ -56,8 +60,7 @@
         <br />
         <br />
 
-        <button id="save"> Save </button>
-        <button id="load"> Load </button>
+        <button id="save"> Save </button> <span style="color:red">Saving the same name will overwrite!</span>
         <div id="loaded" style="border:1px solid black;width:200px;height:30px;">utest</div>
     </div>
 </div>

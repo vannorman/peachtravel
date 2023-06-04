@@ -60,6 +60,13 @@ def get_or_create_user(new_user_id):
     return user
 
 
+def get_trip(user_id, trip_name):
+    conn = sqlite3.connect(DB_NAME)  
+    cursor = conn.cursor()
+    cursor.execute('SELECT trip_json FROM trips WHERE user_id = ? AND trip_name = ?', (user_id,trip_name))
+    trip = cursor.fetchone()
+    return trip
+
 
 def get_trips_for_user(user_id):
     print("Gettin trips:"+user_id)
@@ -69,11 +76,20 @@ def get_trips_for_user(user_id):
     user = cursor.fetchone()
     print("user:"+str(user[0]))
     trips = []
+
     if user:
+        # get table column names so that our return object has keys
+        cursor.execute("PRAGMA table_info(trips)")
+        columns = [column[1] for column in cursor.fetchall()]
+
+        # get data from table 
         cursor.execute('SELECT * FROM trips WHERE user_id = ?', (user_id,))
         trips = cursor.fetchall()
+
+        trip_list = [dict(zip(columns, trip)) for trip in trips]
+
         print("got trip! "+str(trips))
-        return trips
+        return trip_list
     else:
         print("NO SUCH USER: "+user_id)
 

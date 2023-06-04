@@ -17,6 +17,18 @@ $(document).ready(function(){
     OnDateWasChanged();    
     
 
+    $('#loadTrips').on('click',function(){
+        ajax.LoadAll();
+
+
+    })
+
+    $(document).on('click', '.loadTrip', function() {
+        ajax.Load($(this).attr('trip_name'));
+    });
+    $('#closeTrips').on('click',function(){
+        $('#savedTrips').hide();
+    })
     $('#load').on('click',function(){
         ajax.Load();
     })
@@ -46,6 +58,9 @@ $(document).ready(function(){
 
     $(document).on('keyup change', 'input', function() {
 
+        if ($(this).attr('id') === "tripName") {
+            trip.name = $(this).val();
+        }
 
         // DATE CHANGE 
         if ($(this).attr('id') === "startDate") {
@@ -120,17 +135,53 @@ function OnDateWasChanged(){
 }
 
 var ajax ={ 
-    Load(){
+    LoadAll(){
         $.ajax({
             type: 'POST',
-            url: "load/",
+            url: "/load_all",
             headers: {
-                "X-CSRFToken" : csrf
+                "X-CSRFToken" : csrf,
+                "Content-Type": "application/json"
             },
             success: function (e) {
+                $('#savedTrips').show();
+                $('#savedTripsList').html('');
+                for (var trip in e.data){
+                    let tripName = e.data[trip].trip_name;
+                    $('#savedTripsList').append("<li><button class='loadTrip' trip_name='"+tripName+"'>"+"Load "+tripName+"</button>");
+//                    console.log(e.data[trip]); //JSON.parse(e.data[trip].trip_json).cities)
+                    // console.log(JSON.parse(e.data[trip].trip_json).cities)
+                    trip_data = JSON.parse(e.data[trip].trip_json);
+                    for (city in trip_data.cities) { 
+                       let cityName = trip_data.cities[city].name; 
+                        $('#savedTripsList').append(cityName+", "); 
+
+                    }
+
+                    $('#savedTripsList').append("</li>"); 
+
+                }
+
+            },
+            error: function (e) {
+                console.log("error:"+JSON.stringify(e));
+            },
+        });
+
+    },
+    Load(trip_name){
+     
+        $.ajax({
+            type: 'POST',
+            url: "/load",
+            data : JSON.stringify({ trip_name : trip_name }),
+            headers: {
+                "X-CSRFToken" : csrf,
+                "Content-Type": "application/json"
+            },
+            success: function (e) {
+                $('#savedTrips').hide();
                 let tripJson = JSON.parse(e.trip_json);
-                $('#loaded').text(tripJson); 
-                console.log(tripJson);
                 trip = tripJson;
                 trip.startDate = new Date(trip.startDate);
                 UpdateGUI(trip);
@@ -153,9 +204,10 @@ var ajax ={
                 "X-CSRFToken" : csrf,
                 "Content-Type": "application/json"
             },
-            data : JSON.stringify({ trip_name : $('#tripName').val(), trip_json : JSON.stringify(trip) }),
+            data : JSON.stringify({ trip_name : trip.name, trip_json : JSON.stringify(trip) }),
             success: function (e) {
                   console.log('settings save success:'+JSON.stringify(e).trim(0,200));
+                  //$('div[
             },
             error: function (e) {
                 console.log("setting save err: "+ JSON.stringify(e).trim(0,200));
@@ -177,6 +229,7 @@ var cityHtml = '<tr><td><button class="deleteCity">Remove</button></td><td><inpu
 
 
 var trip = {
+    name,
     monthStartDate : 0,
     startDay : null, //Date(), // returns the current local day
     startDate : null,
@@ -195,7 +248,7 @@ function UpdateGUI(tripData){
     // After loading the trip from the server, we need to update the trip inputs to match it
     
     $('#cities').html(''); // Clear all cities
-    
+    $('#tripName').val(tripData.name); 
     // set start date
     var month = trip.startDate.getUTCMonth() + 1; //months from 1-12
     var day = trip.startDate.getUTCDate();
