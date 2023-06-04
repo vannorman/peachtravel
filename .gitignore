@@ -3,6 +3,7 @@
 *.swp
 *.swo
 local_settings.py
+settings_local.py
 venv/**
 venv
 venv/

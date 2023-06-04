@@ -1,6 +1,5 @@
 from datetime import datetime
-
-
+from settings_local import *
 import json
 from os import environ as env
 from urllib.parse import quote_plus, urlencode
@@ -17,7 +16,10 @@ if ENV_FILE:
     
 app = Flask(__name__)
 app.secret_key = env.get("APP_SECRET_KEY")
+print("ENV KEY:"+str(app.secret_key))
+
 db.setup()
+
 
 oauth = OAuth(app)
 

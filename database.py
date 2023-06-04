@@ -1,8 +1,23 @@
 import sqlite3
-DB_NAME="peachtravel.db"
+from os import environ as env
+from dotenv import find_dotenv, load_dotenv
+
+ENV_FILE = find_dotenv()
+if ENV_FILE:
+    load_dotenv(ENV_FILE)
+else:
+    print("NO ENV FILE")
+
+DB_NAME=env.get("DB_FILE")
+
+import os
+
 
 def setup():
-    conn = sqlite3.connect(DB_NAME)  # Create or connect to a SQLite database file named 'database.db'
+    current_working_directory = os.getcwd()
+    print(current_working_directory)
+    print("DB:"+str(DB_NAME))
+    conn = sqlite3.connect(DB_NAME)  
     cursor = conn.cursor()
 
     cursor.execute('''
@@ -25,12 +40,12 @@ def setup():
     conn.commit()
 
 def get_or_create_user(new_user_id):
-    conn = sqlite3.connect(DB_NAME)  # Create or connect to a SQLite database file named 'database.db'
+    conn = sqlite3.connect(DB_NAME)  
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM users WHERE email = ?', (new_user_id,))
     user = cursor.fetchone()
 
-    # Create user if it doesn't exist
+    
     if user is None:
         cursor.execute('INSERT INTO users (email) VALUES (?)', (new_user_id,))
         conn.commit()
@@ -48,7 +63,7 @@ def get_or_create_user(new_user_id):
 
 def get_trips_for_user(user_id):
     print("Gettin trips:"+user_id)
-    conn = sqlite3.connect(DB_NAME)  # Create or connect to a SQLite database file named 'database.db'
+    conn = sqlite3.connect(DB_NAME)  
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM users WHERE email = ?', (user_id,))
     user = cursor.fetchone()
@@ -64,7 +79,7 @@ def get_trips_for_user(user_id):
 
 
 def create_or_update_trip(user_id, trip_name, trip_json):
-    conn = sqlite3.connect(DB_NAME)  # Create or connect to a SQLite database file named 'database.db'
+    conn = sqlite3.connect(DB_NAME)  
     cursor = conn.cursor()
     # Check if the trip with the same title already exists
     cursor.execute('SELECT * FROM trips WHERE user_id = ? AND trip_name = ?', (user_id, trip_name))
@@ -76,7 +91,7 @@ def create_or_update_trip(user_id, trip_name, trip_json):
         conn.commit()
         trip_id = existing_trip[0]
     else:
-        # Create a new trip if no trip with the same title exists
+        
         cursor.execute('INSERT INTO trips (trip_name, trip_json, user_id) VALUES (?, ?, ?)', (trip_name, trip_json, user_id))
         conn.commit()
         trip_id = cursor.lastrowid
