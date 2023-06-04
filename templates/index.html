@@ -8,42 +8,59 @@
 <link rel="shortcut icon" type="image/png" href="/static/img/sun.png">
 <link rel="stylesheet" href="/static/css/index.css?{{ now  }}" />
   
-<div class="calendar"></div>
-<div id="menu">
-    <label for="tripName">Trip Name:</label>
-    <input id="tripName" type="text" value="My Trip" />
-    <br />
-    <br />
-
-    <label for="dateofbirth">Start Date:</label>
-    <input type="date" name="startDate" id="startDate">
-
-    <br />
-    <br />
-    
-    <table>
-      <thead>
-        <tr>
-          <th>City</th>
-          <th>Days</th>
-        </tr>
-      </thead>
-      <tbody id="cities">
-        <tr>
-        </tr>
-
-      </tbody>
-    </table>
-
-    <button id="addCity" value="Add city"> Add City </button>
-    <br />
-    <br />
-
-    <button id="save"> Save </button>
-    <button id="load"> Load </button>
-    <div id="loaded" style="border:1px solid black;width:200px;height:30px;">utest</div>
+<div id="header">
+    Login
 </div>
 
+<div id="container">
+    <div class="calendar"></div>
+    <div id="menu">
+        <div id="hello">
+          {% if session %}
+              <h1>Welcome {{session.user.userinfo.name}}!</h1>
+              Your trips: {{ trips }}
+              <p><a href="/logout">Logout</a></p>
+              <div><pre>{{pretty}}</pre></div>
+          {% else %}
+            <h1>Welcome Guest</h1>
+            <p><a href="/login">Login</a></p>
+          {% endif %}
+
+        </div>
+        <label for="tripName">Trip Name:</label>
+        <input id="tripName" type="text" value="My Trip" />
+        <br />
+        <br />
+
+        <label for="dateofbirth">Start Date:</label>
+        <input type="date" name="startDate" id="startDate">
+
+        <br />
+        <br />
+        
+        <table>
+          <thead>
+            <tr>
+              <th>City</th>
+              <th>Days</th>
+            </tr>
+          </thead>
+          <tbody id="cities">
+            <tr>
+            </tr>
+
+          </tbody>
+        </table>
+
+        <button id="addCity" value="Add city"> Add City </button>
+        <br />
+        <br />
+
+        <button id="save"> Save </button>
+        <button id="load"> Load </button>
+        <div id="loaded" style="border:1px solid black;width:200px;height:30px;">utest</div>
+    </div>
+</div>
 <script> const csrf = "{{ csrf }}" </script>
 <script src="/static/js/jquery-min.js"></script>
 <link rel='stylesheet' src="/static/css/date.css?nocache={{ now }}"></link>
@@ -94,8 +111,6 @@
   }
 
   </script>
-<fb:login-button scope="public_profile,email" onlogin="checkLoginState();">
-</fb:login-button>
 
 <div id="status">
 </div>

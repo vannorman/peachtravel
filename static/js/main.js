@@ -39,7 +39,7 @@ $(document).ready(function(){
         trip.cities.splice(rowToDelete,1);
         UpdateCalendar();
         UpdateGUI(trip);
-//        $(this).closest('tr').remove();
+        // $(this).closest('tr').remove();
         
       //code here ....
     });
@@ -138,35 +138,31 @@ var ajax ={
             },
             error: function (e) {
                 console.log("error:"+JSON.stringify(e));
-            }
+            },
         });
 
     },
 
     Save(){
         console.log("starting save");
-        data = {
-           data : JSON.stringify({
-                trip_name : $('#tripName').val(),
-                trip_json : JSON.stringify(trip)
-            })
-        }
+        
         $.ajax({
             type: 'POST',
-            url: "save/",
+            url: "/save",
             headers: {
-                "X-CSRFToken" : csrf
+                "X-CSRFToken" : csrf,
+                "Content-Type": "application/json"
             },
-            data : data,
+            data : JSON.stringify({ trip_name : $('#tripName').val(), trip_json : JSON.stringify(trip) }),
             success: function (e) {
                   console.log('settings save success:'+JSON.stringify(e).trim(0,200));
             },
             error: function (e) {
                 console.log("setting save err: "+ JSON.stringify(e).trim(0,200));
 //                $('html').html(JSON.stringify(e));
-            }
+            },
         });
-
+        event.preventDefault();
     },
 }
 

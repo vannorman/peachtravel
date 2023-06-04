@@ -14,7 +14,16 @@ body {
     overflow-x:hidden;
 }
 
-
+#header {
+    height:60px;
+    background-color:#522;
+    width:100%;
+    position:fixed;
+}
+#container {
+    position:relative;
+    top:60px;
+}
 .calendar {
   display: flex;
   flex-wrap: wrap;
@@ -56,9 +65,9 @@ content: "";
 }*/
 
 #menu {
-    position:fixed;
+    position:absolute;
     right:0;
-    top:50;
+    top:80;
     width:30vw;
 }
 
