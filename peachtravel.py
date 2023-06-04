@@ -95,7 +95,7 @@ def load_trip():
 
 
 @app.route('/delete', methods=['POST'])
-def create_trip():
+def delete_trip():
     if "user" in session and session["user"] is not None:
         print("~~ got user:"+session["user"]["userinfo"]["email"])
         user_id = session["user"]["userinfo"]["email"]
@@ -132,7 +132,7 @@ def check_name_exists():
     return jsonify({'success':True,'name_exists': name_exists})
 
 @app.route('/save', methods=['POST'])
-def delete_trip():
+def save_trip():
     if "user" in session and session["user"] is not None:
         print("~~ got user:"+session["user"]["userinfo"]["email"])
         user_id = session["user"]["userinfo"]["email"]

@@ -77,7 +77,7 @@ def get_trips_for_user(user_id):
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM users WHERE email = ?', (user_id,))
     user = cursor.fetchone()
-    print("user:"+str(user[0]))
+#    if user: print("user:"+str(user[0]))
     trips = []
 
     if user:
@@ -89,13 +89,16 @@ def get_trips_for_user(user_id):
         cursor.execute('SELECT * FROM trips WHERE user_id = ?', (user_id,))
         trips = cursor.fetchall()
 
-        trip_list = [dict(zip(columns, trip)) for trip in trips]
-
+        if trips:
+            trip_list = [dict(zip(columns, trip)) for trip in trips]
+        else:
+            trip_list = []
         print("got trip! "+str(trips))
         conn.close()
         return trip_list
     else:
         conn.close()
+        return trips
         print("NO SUCH USER: "+user_id)
 
 

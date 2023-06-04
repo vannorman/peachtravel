@@ -224,6 +224,7 @@ var ajax ={
                     ajax.Save();
                   } else {
                     console.log("Name "+trip.name+" did not exist, saving new.");
+                    ajax.Save();
                   }
                   //$('div[
             },
@@ -249,6 +250,7 @@ var ajax ={
             },
             data : JSON.stringify({ trip_name : trip.name, trip_json : JSON.stringify(trip) }),
             success: function (e) {
+                $('#saveResult').text("trip "+trip.name+" saved!")
                   console.log('settings save success:'+JSON.stringify(e).trim(0,200));
                   //$('div[
             },
