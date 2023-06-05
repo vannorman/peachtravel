@@ -1,6 +1,7 @@
 import sqlite3
 from os import environ as env
 from dotenv import find_dotenv, load_dotenv
+from datetime import datetime
 
 ENV_FILE = find_dotenv()
 if ENV_FILE:
@@ -8,13 +9,15 @@ if ENV_FILE:
 DB_NAME = env.get("DB_FILE")
  
 def setup():
+    print("Setup DB")
     conn = sqlite3.connect(DB_NAME)  
     cursor = conn.cursor()
 
     cursor.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            email TEXT UNIQUE NOT NULL
+            email TEXT UNIQUE NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         )
     ''')
 
@@ -24,6 +27,7 @@ def setup():
             trip_name TEXT NOT NULL,
             trip_json TEXT NOT NULL,
             user_id INTEGER,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users (id)
         )
     ''')
@@ -63,7 +67,6 @@ def get_trip(user_id, trip_name):
 
 
 def get_trips_for_user(user_id):
-    print("using DB:"+DB_NAME+", Gettin trips:"+user_id)
     conn = sqlite3.connect(DB_NAME)  
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM users WHERE email = ?', (user_id,))
@@ -75,9 +78,10 @@ def get_trips_for_user(user_id):
         columns = [column[1] for column in cursor.fetchall()]
 
         # get data from table 
-        cursor.execute('SELECT * FROM trips WHERE user_id = ?', (user_id,))
+        cursor.execute('SELECT * FROM trips WHERE user_id = ? ORDER BY created_at DESC', (user_id,))
         trips = cursor.fetchall()
-
+        print("TRIPS w ordered by createda t desc:")
+        print(trips)
         if trips:
             trip_list = [dict(zip(columns, trip)) for trip in trips]
         else:
@@ -97,14 +101,16 @@ def create_or_update_trip(user_id, trip_name, trip_json):
     cursor.execute('SELECT * FROM trips WHERE user_id = ? AND trip_name = ?', (user_id, trip_name))
     existing_trip = cursor.fetchone()
 
+    current_timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+
     if existing_trip:
         # Update the existing trip with the same title
-        cursor.execute('UPDATE trips SET trip_name = ?, trip_json = ? WHERE id = ?', (trip_name, trip_json, existing_trip[0]))
+        cursor.execute('UPDATE trips SET trip_name = ?, trip_json = ?, created_at = ? WHERE id = ?', (trip_name, trip_json, current_timestamp, existing_trip[0]))
+        print("updated "+trip_name+" w timestampe:"+current_timestamp)
         conn.commit()
         trip_id = existing_trip[0]
     else:
-        
-        cursor.execute('INSERT INTO trips (trip_name, trip_json, user_id) VALUES (?, ?, ?)', (trip_name, trip_json, user_id))
+        cursor.execute('INSERT INTO trips (trip_name, trip_json, user_id, created_at) VALUES (?, ?, ?, ?)', (trip_name, trip_json, user_id, current_timestamp))
         conn.commit()
         trip_id = cursor.lastrowid
     conn.close()
@@ -143,7 +149,7 @@ def check_trip_exists(user_id, trip_name):
         return False
         # Update the existing trip with the same title
 
-def get_total_trip_count(user_id):
+def get_total_trips(user_id):
     conn = sqlite3.connect(DB_NAME)  
     cursor = conn.cursor()
     # Check if the trip with the same title already exists

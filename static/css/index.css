@@ -5,6 +5,7 @@ html {
     width:100%;
     max-width:100%;
     top:0;left:0;
+    transition: all 0.2s;
 }
 
 body {
@@ -20,7 +21,10 @@ body {
     width:100%;
     position:fixed;
 }
+#loadTrips{
 
+    display:none;
+}
 #savedTrips {
     position:fixed;
     display:none;
@@ -30,7 +34,10 @@ body {
     top:20%;
     border:3px solid #444;
     background-color:#eee;
+    overflow-y:scroll;
+    transition: all 0.3s;
 }
+
 #savedTrips .header {
     text-align:center;
 }
@@ -121,8 +128,13 @@ content: "";
 #menu {
     position:absolute;
     right:0;
-    top:80;
+    top:20;
     width:30vw;
+}
+
+#currentTrip {
+    padding:15px;
+    border: 1px solid #333;
 }
 
 .citiesTable {

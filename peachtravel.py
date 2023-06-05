@@ -104,10 +104,10 @@ def delete_trip():
 
     data = request.get_json()
     trip_name = data.get('trip_name')
-
+    total_trips = db.get_total_trips(user_id)
     result = db.delete_trip(user_id,trip_name)
 
-    return jsonify({'success':True,'message': result})
+    return jsonify({'success':True,'total_trips':total_trips,'message': result})
 
 @app.route('/preSaveNameCheck', methods=['POST'])
 def check_name_exists():
@@ -145,7 +145,7 @@ def save_trip():
     trip_json = data.get('trip_json')
     
     trip_id = db.create_or_update_trip(user_id,trip_name,trip_json)
-    total_trips = db.get_total_trip_count(user_id)
+    total_trips = db.get_total_trips(user_id)
     return jsonify({'success':True,'trip_id': trip_id,'total_trips':total_trips})
 
 
@@ -158,14 +158,12 @@ def home():
     if "user" in session and session["user"] is not None:
         print("~~ got user:"+session["user"]["userinfo"]["email"])
         user_id = session["user"]["userinfo"]["email"]
-        print(session["user"]["userinfo"])
         user_firstname = session["user"]["userinfo"]["given_name"]
         trips = db.get_trips_for_user(user_id)
     else:
         print("~~ no user")
         trips = "none, not logged in"
 
-    print(str(trips))
 
     return render_template('index.html', now=now, trips=trips, user=user_firstname)
 

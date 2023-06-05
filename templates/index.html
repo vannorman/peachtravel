@@ -17,11 +17,12 @@
     <div id="menu">
         <div id="hello">
           {% if session %}
-              <h1>Welcome {{user}}!</h1>
-              You have <span id="numSavedTrips"> {{ trips|length }} </span> saved trips. 
-                <button id="loadTrips"> Load a trip</button>
+              <h2>Welcome {{user}}!</h2>
               <p><a href="/logout">Logout</a></p>
-              <div><pre>{{pretty}}</pre></div>
+              You have <span id="numSavedTrips"> 0 </span> saved trips. 
+                <button id="loadTrips"> View Trips</button>
+            <br>
+            <br>
           {% else %}
             <h1>Welcome Guest</h1>
             <p><a href="/login">Login</a></p>
@@ -32,35 +33,34 @@
                 <ul id="savedTripsList"></ul>
             </div>
         </div>
-        <label for="tripName">Trip Name:</label>
-        <input id="tripName" type="text" value="My Trip" />
-        <br />
-        <br />
+        <div id="currentTrip">
+            <label for="tripName">Trip Name:</label>
+            <input id="tripName" type="text" value="My Trip" />
+            <br />
+            <br />
 
-        <label for="dateofbirth">Start Date:</label>
-        <input type="date" name="startDate" id="startDate">
+            <label for="dateofbirth">Start Date:</label>
+            <input type="date" name="startDate" id="startDate">
 
-        <br />
-        <br />
-        <button id="addCity" value="Add city"> Add City </button>
-        <button id="save"> Save </button> <span id="saveResult"></span>
-        
-        <table>
-          <thead>
-            <tr>
-              <th>City</th>
-              <th>Days</th>
-            </tr>
-          </thead>
-          <tbody id="cities">
-            <tr>
-            </tr>
+            <br />
+            <br />
+            <button id="addCity" value="Add city"> Add City </button>
+            <button id="save"> Save </button> <span id="saveResult"></span>
+            
+            <table>
+              <thead>
+                <tr>
+                  <th>City</th>
+                  <th>Days</th>
+                </tr>
+              </thead>
+              <tbody id="cities">
+                <tr>
+                </tr>
 
-          </tbody>
-        </table>
-
-        <br />
-        <br />
+              </tbody>
+            </table>
+        </div>
 
     </div>
 </div>

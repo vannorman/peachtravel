@@ -15,12 +15,16 @@ $(document).ready(function(){
     $('#startDate').val(stringDate);
     trip.startDate = dateObj;
     OnDateWasChanged();    
+   
+    let firstTime = true; // for page load only
+    ajax.LoadAll(firstTime);
     
+    console.log("l?");
 
     $('#loadTrips').on('click',function(){
         ajax.LoadAll();
-
-
+        $('#savedTrips').show();
+        $('html').css('overflow-y','hidden').css('background-color','gray');
     })
 
     $(document).on('click', '.loadTrip', function() {
@@ -36,11 +40,9 @@ $(document).ready(function(){
 
     $('#closeTrips').on('click',function(){
         $('#savedTrips').hide();
+        $('html').css('overflow-y','scroll').css('background-color','white');
     });
 
-    $('#load').on('click',function(){
-        ajax.Load();
-    });
 
     $('#save').on('click',function(e){
         ajax.PreSaveNameCheck();
@@ -66,9 +68,6 @@ $(document).ready(function(){
       //code here ....
     });
 
-    $('#saveResult').on('DOMSubtreeModified', function(){
-        $(this).stop().fadeOut(5500)
-    });
     $(document).on('keyup change', 'input', function() {
 
         if ($(this).attr('id') === "tripName") {
@@ -148,7 +147,7 @@ function OnDateWasChanged(){
 }
 
 var ajax ={ 
-    LoadAll(){
+    LoadAll(firstTime = false){
         $.ajax({
             type: 'POST',
             url: "/load_all",
@@ -157,10 +156,14 @@ var ajax ={
                 "Content-Type": "application/json"
             },
             success: function (e) {
-                $('#savedTrips').show();
                 $('#savedTripsList').html('');
+                let firstTripLoaded = false;
                 for (var trip in e.data){
                     let tripName = e.data[trip].trip_name;
+                    if (!firstTripLoaded && firstTime){
+                        firstTripLoaded = true;
+                        ajax.Load(tripName);
+                    }
                     trip_data = JSON.parse(e.data[trip].trip_json);
                     let cities = [];
                     for (c in trip_data.cities) { 
@@ -170,18 +173,21 @@ var ajax ={
                         cities.push(cityName+" ("+days+" " +daysText+")"); 
                     }
                     let citiesText = cities.join(", ")
-
+                    let startDate = new Date(trip_data.startDate).toISOString().split('T')[0];
                     $('#savedTripsList').append("<li>"+
                         "<h3>"+tripName+"</h3>"+
-                        "Cities: "+ citiesText +
+                        "Start:"+startDate+
+                        "<br> Cities: "+ citiesText +
                         "<div class='buttons'>"+
-                            "<button class='loadTrip' trip_name='"+tripName+"'>"+"Load "+tripName+"</button> " +
-                            "<button class='deleteTrip' trip_name='"+tripName+"'>"+"Delete "+tripName+"</button> " +
+                            "<button class='loadTrip' trip_name='"+tripName+"'>"+"Load</button> " +
+                            "<button class='deleteTrip' trip_name='"+tripName+"'>"+"Delete</button> " +
                         "</div>" +
                         "</li>");
 
                 }
                 $('#numSavedTrips').text(e.data.length)
+                if (e.data.length > 0) $('#loadTrips').show();
+                else $('#loadTrips').hide();
             },
             error: function (e) {
                 console.log("error:"+JSON.stringify(e));
@@ -201,11 +207,14 @@ var ajax ={
             },
             success: function (e) {
                 $('#savedTrips').hide();
+                $('html').css('overflow-y','scroll').css('background-color','white');
+
                 let tripJson = JSON.parse(e.trip_json);
                 trip = tripJson;
                 trip.startDate = new Date(trip.startDate);
                 UpdateGUI(trip);
                 UpdateCalendar();
+                ShowMessage("Loaded "+trip.name);
             },
             error: function (e) {
                 console.log("error:"+JSON.stringify(e));
@@ -223,21 +232,20 @@ var ajax ={
             },
             data : JSON.stringify({ trip_name : trip.name, trip_json : JSON.stringify(trip) }),
             success: function (e) {
-                  console.log('name check success:'+JSON.stringify(e).trim(0,200));
+                  // console.log('name check success:'+JSON.stringify(e).trim(0,200));
                   name_exists = e["name_exists"];
-                  console.log("Name exists:"+name_exists);
+                  // console.log("Name exists:"+name_exists);
                   user_exists = e["user_exists"];
                   if (name_exists && window.confirm("Name "+trip.name+" exists! Overwrite? ")){
                     ajax.Save();
                   } else if (!user_exists) {
                     alert("You need to log in before you can save a trip.");
                   } else if (!name_exists) {
-                    console.log("Name "+trip.name+" did not exist, saving new.");
+                    // console.log("Name "+trip.name+" did not exist, saving new.");
                     ajax.Save();
                   } else {
-                    $('#saveResult').stop().css('opacity',1).fadeIn().text("Save canceled (would overwrite "+trip.name+")");
+                    ShowMessage("Save canceled!");
                   }
-                  //$('div[
             },
             error: function (e) {
                 console.log("setting save err: "+ JSON.stringify(e).trim(0,200));
@@ -249,7 +257,7 @@ var ajax ={
     Save(){
         if (trip.cities.length == 0) {
             alert('You have no cities. Add a city before saving a trip');  
-            $('#saveResult').stop().css('opacity',1).fadeIn().text("Save canceled (no cities)");
+            ShowMessage("Save canceled (no cities!)");
             return;
         
         }
@@ -264,11 +272,10 @@ var ajax ={
             },
             data : JSON.stringify({ trip_name : trip.name, trip_json : JSON.stringify(trip) }),
             success: function (e) {
-                $('#saveResult').stop().css('opacity',1).fadeIn().text("trip "+trip.name+" saved!")
-                console.log(e)
+                ShowMessage(trip.name+" saved!");
                 let numTrips = e['total_trips'];
                 $('#numSavedTrips').text(numTrips)
-                  // console.log('settings save success:'+JSON.stringify(e).trim(0,200));
+                if (numTrips > 0) $('#loadTrips').show();
             },
             error: function (e) {
                 console.log("setting save err: "+ JSON.stringify(e).trim(0,200));
@@ -286,7 +293,6 @@ var ajax ={
             },
             data : JSON.stringify({ trip_name : trip_name }),
             success: function (e) {
-                  console.log('dlete success:'+JSON.stringify(e).trim(0,200));
                   //$('div[
                   ajax.LoadAll();
             },
@@ -343,7 +349,6 @@ function UpdateGUI(tripData){
         let thisCity = tripData.cities[i];
         let newCity = $(cityHtml);
         $('#cities').append(cityHtml);
-//        console.log("i+1:"+(i)+", city name:"+city.name);
         $('#cities tr:eq('+(i)+')').find('.city').val(thisCity.name)
         $('#cities tr:eq('+(i)+')').find('.numDays').val(thisCity.days)
         if (i == 0) {
@@ -404,10 +409,8 @@ function UpdateCalendar(){
     })
     var days = 0;
     for(let i=0;i<trip.cities.length;i++){
-        //console.log("trip startdate:"+trip.startDay+", days:"+days+", sum:"+trip.startDay+days);
         let day = days + trip.startDay;
         let cityName = trip.cities[i].name;
-//        console.log("updating "+day+" with "+cityName);
         $('#box'+day).find('.city').text(cityName);
 
         let cityStartDate = trip.startDay + days;
@@ -420,13 +423,9 @@ function UpdateCalendar(){
         days += trip.cities[i].days;
     }
 
-    // Repaint the GUI
-//    $('#cities').text('');
-//    for(let i=0;i<trip.cities.length;i++){
-//        let $newCity = $(cityHtml);
-//        $('#cities').append($newCity);
-//        $newCity.find('.city').val(trip.cities[i].name);
-//    }
-    
+}
+
+function ShowMessage(text){
+    $('#saveResult').stop().css('opacity',1).text(text).fadeOut(5500);
 
 }
