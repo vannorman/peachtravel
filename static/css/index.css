@@ -36,10 +36,27 @@ body {
 }
 
 #savedTrips ul {
+    position:relative;
     width:70%;
     left:15%;
+list-style: none;
+    padding-left: 0;
+    }
+
+#savedTrips ul li {
+    border: 1px solid #333;
+    position:relative;
+}
+#savedTrips ul li .buttons {
+    float:right;
+    top: 20px;
+    position: absolute;
+    right: 0;
 }
 
+#saveResult{
+    color:green;
+}
 #closeTrips {
    position:relative;
    top:0;
@@ -59,7 +76,7 @@ body {
     }
 #container {
     position:relative;
-    top:60px;
+    margin-top:60px;
 }
 .calendar {
   display: flex;

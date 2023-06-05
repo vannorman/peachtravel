@@ -66,6 +66,9 @@ $(document).ready(function(){
       //code here ....
     });
 
+    $('#saveResult').on('DOMSubtreeModified', function(){
+        $(this).stop().fadeOut(5500)
+    });
     $(document).on('keyup change', 'input', function() {
 
         if ($(this).attr('id') === "tripName") {
@@ -169,9 +172,12 @@ var ajax ={
                     let citiesText = cities.join(", ")
 
                     $('#savedTripsList').append("<li>"+
-                        "<button class='loadTrip' trip_name='"+tripName+"'>"+"Load "+tripName+"</button> " +
-                        citiesText +
-                        "<button class='deleteTrip' trip_name='"+tripName+"'>"+"Delete "+tripName+"</button> " +
+                        "<h3>"+tripName+"</h3>"+
+                        "Cities: "+ citiesText +
+                        "<div class='buttons'>"+
+                            "<button class='loadTrip' trip_name='"+tripName+"'>"+"Load "+tripName+"</button> " +
+                            "<button class='deleteTrip' trip_name='"+tripName+"'>"+"Delete "+tripName+"</button> " +
+                        "</div>" +
                         "</li>");
 
                 }
@@ -220,11 +226,16 @@ var ajax ={
                   console.log('name check success:'+JSON.stringify(e).trim(0,200));
                   name_exists = e["name_exists"];
                   console.log("Name exists:"+name_exists);
+                  user_exists = e["user_exists"];
                   if (name_exists && window.confirm("Name "+trip.name+" exists! Overwrite? ")){
                     ajax.Save();
-                  } else {
+                  } else if (!user_exists) {
+                    alert("You need to log in before you can save a trip.");
+                  } else if (!name_exists) {
                     console.log("Name "+trip.name+" did not exist, saving new.");
                     ajax.Save();
+                  } else {
+                    $('#saveResult').stop().css('opacity',1).fadeIn().text("Save canceled (would overwrite "+trip.name+")");
                   }
                   //$('div[
             },
@@ -236,10 +247,13 @@ var ajax ={
     
     },
     Save(){
-        if (trip.cities.length == 0) alert('You have no cities. Add a city before saving a trip');  
-
-    
-
+        if (trip.cities.length == 0) {
+            alert('You have no cities. Add a city before saving a trip');  
+            $('#saveResult').stop().css('opacity',1).fadeIn().text("Save canceled (no cities)");
+            return;
+        
+        }
+        
 
         $.ajax({
             type: 'POST',
@@ -250,13 +264,14 @@ var ajax ={
             },
             data : JSON.stringify({ trip_name : trip.name, trip_json : JSON.stringify(trip) }),
             success: function (e) {
-                $('#saveResult').text("trip "+trip.name+" saved!")
-                  console.log('settings save success:'+JSON.stringify(e).trim(0,200));
-                  //$('div[
+                $('#saveResult').stop().css('opacity',1).fadeIn().text("trip "+trip.name+" saved!")
+                console.log(e)
+                let numTrips = e['total_trips'];
+                $('#numSavedTrips').text(numTrips)
+                  // console.log('settings save success:'+JSON.stringify(e).trim(0,200));
             },
             error: function (e) {
                 console.log("setting save err: "+ JSON.stringify(e).trim(0,200));
-//                $('html').html(JSON.stringify(e));
             },
         });
         event.preventDefault();

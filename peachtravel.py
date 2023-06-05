@@ -9,6 +9,7 @@ from dotenv import find_dotenv, load_dotenv
 from flask import Flask, redirect, render_template, session, url_for, jsonify, request
 
 import database as db
+db.setup()
 
 ENV_FILE = find_dotenv()
 if ENV_FILE:
@@ -16,10 +17,6 @@ if ENV_FILE:
     
 app = Flask(__name__)
 app.secret_key = env.get("APP_SECRET_KEY")
-print("ENV KEY:"+str(app.secret_key))
-
-db.setup()
-
 
 oauth = OAuth(app)
 
@@ -67,7 +64,6 @@ def logout():
 @app.route('/load_all', methods=['POST'])
 def load_all_trips():
     if "user" in session and session["user"] is not None:
-        print("~~ got user:"+session["user"]["userinfo"]["email"])
         user_id = session["user"]["userinfo"]["email"]
     else:
         print("~~ no user")
@@ -115,6 +111,7 @@ def delete_trip():
 
 @app.route('/preSaveNameCheck', methods=['POST'])
 def check_name_exists():
+    user_id = None
     if "user" in session and session["user"] is not None:
         print("~~ got user:"+session["user"]["userinfo"]["email"])
         user_id = session["user"]["userinfo"]["email"]
@@ -128,8 +125,8 @@ def check_name_exists():
     data = request.get_json()
     trip_name = data.get('trip_name')
     name_exists = db.check_trip_exists(user_id,trip_name)
-
-    return jsonify({'success':True,'name_exists': name_exists})
+    user_exists = True if user_id is not None else False
+    return jsonify({'success':True,'user_exists':user_exists,'name_exists': name_exists})
 
 @app.route('/save', methods=['POST'])
 def save_trip():
@@ -146,19 +143,23 @@ def save_trip():
     data = request.get_json()
     trip_name = data.get('trip_name')
     trip_json = data.get('trip_json')
-
+    
     trip_id = db.create_or_update_trip(user_id,trip_name,trip_json)
-
-    return jsonify({'success':True,'trip_id': trip_id})
+    total_trips = db.get_total_trip_count(user_id)
+    return jsonify({'success':True,'trip_id': trip_id,'total_trips':total_trips})
 
 
 
 @app.route('/')
 def home():
     now = datetime.now()
+    user_id = None
+    user_firstname = "Guest"
     if "user" in session and session["user"] is not None:
         print("~~ got user:"+session["user"]["userinfo"]["email"])
         user_id = session["user"]["userinfo"]["email"]
+        print(session["user"]["userinfo"])
+        user_firstname = session["user"]["userinfo"]["given_name"]
         trips = db.get_trips_for_user(user_id)
     else:
         print("~~ no user")
@@ -166,7 +167,7 @@ def home():
 
     print(str(trips))
 
-    return render_template('index.html', now=now, trips=trips)
+    return render_template('index.html', now=now, trips=trips, user=user_firstname)
 
 if __name__ == '__main__':
     app.run()

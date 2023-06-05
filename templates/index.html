@@ -17,7 +17,7 @@
     <div id="menu">
         <div id="hello">
           {% if session %}
-              <h1>Welcome {{session.user.userinfo.name}}!</h1>
+              <h1>Welcome {{user}}!</h1>
               You have <span id="numSavedTrips"> {{ trips|length }} </span> saved trips. 
                 <button id="loadTrips"> Load a trip</button>
               <p><a href="/logout">Logout</a></p>
@@ -28,7 +28,7 @@
           {% endif %}
             <div id="savedTrips">
                 <div id="closeTrips">X</div>
-                <div class="header"><h2>{{session.user.userinfo.given_name}}'s Trips </h2></div>
+                <div class="header"><h2>{{user}}'s Trips </h2></div>
                 <ul id="savedTripsList"></ul>
             </div>
         </div>

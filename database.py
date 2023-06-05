@@ -5,18 +5,9 @@ from dotenv import find_dotenv, load_dotenv
 ENV_FILE = find_dotenv()
 if ENV_FILE:
     load_dotenv(ENV_FILE)
-else:
-    print("NO ENV FILE")
-
-DB_NAME=env.get("DB_FILE")
-
-import os
-
-
+DB_NAME = env.get("DB_FILE")
+ 
 def setup():
-    current_working_directory = os.getcwd()
-    print(current_working_directory)
-    print("DB:"+str(DB_NAME))
     conn = sqlite3.connect(DB_NAME)  
     cursor = conn.cursor()
 
@@ -72,13 +63,11 @@ def get_trip(user_id, trip_name):
 
 
 def get_trips_for_user(user_id):
-    print("Gettin trips:"+user_id)
+    print("using DB:"+DB_NAME+", Gettin trips:"+user_id)
     conn = sqlite3.connect(DB_NAME)  
     cursor = conn.cursor()
     cursor.execute('SELECT * FROM users WHERE email = ?', (user_id,))
     user = cursor.fetchone()
-#    if user: print("user:"+str(user[0]))
-    trips = []
 
     if user:
         # get table column names so that our return object has keys
@@ -93,13 +82,12 @@ def get_trips_for_user(user_id):
             trip_list = [dict(zip(columns, trip)) for trip in trips]
         else:
             trip_list = []
-        print("got trip! "+str(trips))
         conn.close()
         return trip_list
     else:
         conn.close()
-        return trips
         print("NO SUCH USER: "+user_id)
+        return []
 
 
 def create_or_update_trip(user_id, trip_name, trip_json):
@@ -155,3 +143,11 @@ def check_trip_exists(user_id, trip_name):
         return False
         # Update the existing trip with the same title
 
+def get_total_trip_count(user_id):
+    conn = sqlite3.connect(DB_NAME)  
+    cursor = conn.cursor()
+    # Check if the trip with the same title already exists
+    cursor.execute("SELECT COUNT(*) FROM trips WHERE user_id = '"+user_id+"'")
+    result = cursor.fetchone()
+    row_count = result[0]
+    return row_count 
