@@ -8,7 +8,7 @@ from authlib.integrations.flask_client import OAuth
 from dotenv import find_dotenv, load_dotenv
 from flask import Flask, redirect, render_template, session, url_for, jsonify, request
 
-import database as db
+from peach_travel import database as db
 db.setup()
 
 ENV_FILE = find_dotenv()
@@ -173,4 +173,5 @@ if __name__ == '__main__':
 @app.template_filter('parse_json')
 def parse_json(value):
     return json.loads(value)
+
 
