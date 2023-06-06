@@ -15,4 +15,5 @@ ourplan.db
 **/ourplan.db
 peachtravel.wsgi
 peachtravel.db
+run_local_server.sh
 

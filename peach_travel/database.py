@@ -80,8 +80,6 @@ def get_trips_for_user(user_id):
         # get data from table 
         cursor.execute('SELECT * FROM trips WHERE user_id = ? ORDER BY created_at DESC', (user_id,))
         trips = cursor.fetchall()
-        print("TRIPS w ordered by createda t desc:")
-        print(trips)
         if trips:
             trip_list = [dict(zip(columns, trip)) for trip in trips]
         else:
@@ -90,7 +88,7 @@ def get_trips_for_user(user_id):
         return trip_list
     else:
         conn.close()
-        print("NO SUCH USER: "+user_id)
+        print("NO SUCH USER (in local users table): "+user_id)
         return []
 
 
