@@ -38,11 +38,38 @@ $(document).ready(function(){
         }
     });
 
-    $('#closeTrips').on('click',function(){
-        $('#savedTrips').hide();
-        $('html').css('overflow-y','scroll').css('background-color','white');
+    $(document).on('click', '.note', function() {
+        let boxId=$(this).closest('.box').attr('id');
+        dateBeingEdited = parseInt(boxId.match(/\d+/));
+        console.log("date:"+dateBeingEdited);
+        PopUpNote($(this));
     });
 
+
+    $('#doneNote').on('click',function(){
+        let newlinedText = $('#noteTextArea').val().replace(/\n/g,'<br>'); 
+        let linkifiedText = LinkifyText(newlinedText);
+        $('#noteText').html(linkifiedText);
+        $('#noteText').show();
+        $('#saveNote').show();
+        $('#doneNote').hide();
+        $('#editNote').show();
+        $('#noteTextArea').hide();
+    });
+    $('#cancelNote').on('click',function(){
+        ClosePopups();    
+    });
+    $('#editNote').on('click',function(){
+        $('#noteText').hide();
+        $('#saveNote').show();
+        $('#doneNote').show();
+        $('#editNote').hide();
+        $('#noteTextArea').show();
+    });
+    $('#saveNote').on('click',function(){
+        text = $('#notePopup').find('textarea').val();
+        ClosePopups();    
+    });
 
     $('#save').on('click',function(e){
         ajax.PreSaveNameCheck();
@@ -309,11 +336,14 @@ var ajax ={
 
 var city = {
     name : "new city",
-    days : 1
+    days : 1,
+    notes : [],  // length <= days
 }
 
 var cityHtml = '<tr><td><button class="deleteCity">Remove</button></td><td><input type="text" class="city"></td><td><input class="numDays" type="number" value="1" min="1"></td><td><div class="up">^</div><div class="down">v</div></tr> ';
 
+
+var dateBeingEdited = -1;
 
 var trip = {
     name : "My Trip",
@@ -344,6 +374,7 @@ function UpdateGUI(tripData){
     $('#startDate').val(stringDate);
  
 
+    // (Right hand interactive panel)
     // Populate cities from trip data
     for(var i=0;i<tripData.cities.length;i++){
         let thisCity = tripData.cities[i];
@@ -376,10 +407,17 @@ function UpdateCalendar(){
         
     }
     for (var i = 1; i < daysInCurrentMonth+1; i++) {
-        $('.calendar').append($('<div class="box" id="box'+i+'"><div class="num">'+i+'</div><div class="city"></div></div>'));
+            let divString = `
+                <div class="box" id="box${i}">
+                    <div class="num">${i}</div>
+                    <div class="city"></div>
+                    <div class="note"></div>
+                </div>`;
+        $('.calendar').append(divString);
     }
 
     // Add second month if needed
+    /*
     let tripLength = 0;
     trip.cities.forEach(x => tripLength += x.days);
     if (tripLength > daysInCurrentMonth - trip.startDay){
@@ -393,14 +431,21 @@ function UpdateCalendar(){
             $('.calendar').append($('<div class="box"></div>'));
             
         }
-        let daysInNextMonth = daysInMonth(tempDate.getMonth()+1,tempDate.getYear())
-        ;for (var i = 1; i < daysInNextMonth+1; i++) {
-            $('.calendar').append($('<div class="box" id="box'+i+'"><div class="num">'+i+'</div><div class="city"></div></div>'));
+        let daysInNextMonth = daysInMonth(tempDate.getMonth()+1,tempDate.getYear());
+        for (var i = 1; i < daysInNextMonth+1; i++) {
+            // Generate each box for the calendarA
+            let divString = `
+                <div class="box" id="box${i}test">
+                    <div class="num">${i}</div>
+                    <div class="city"></div>
+                    <div class="notes"></div>
+                </div>`;
+            $('.calendar').append(divString);
         }
 
          
     }
-
+    */
 
     $('.box').css('background','#e0e0e0');
     $('#box'+trip.startDay).css('background','#abc');
@@ -408,6 +453,9 @@ function UpdateCalendar(){
         $(this).find('.city').text('');
     })
     var days = 0;
+
+
+    // Populate city by city
     for(let i=0;i<trip.cities.length;i++){
         let day = days + trip.startDay;
         let cityName = trip.cities[i].name;
@@ -415,10 +463,14 @@ function UpdateCalendar(){
 
         let cityStartDate = trip.startDay + days;
         // color the boxes
-        
-        for (let j=cityStartDate;j<cityStartDate+trip.cities[i].days;j++){
+       
+        // Populate each city on the calendar
+        for (let j=0;j<trip.cities[i].days;j++){
+            let date = cityStartDate + j;
+            let notes = trip.cities[i].notes == undefined ? "test" : trip.cities[i].notes[j];
             let color = tripUtils.getColorForCity(i);
-            $('#box'+j).css('background',color);
+            $('#box'+date).css('background',color);
+            $('#box'+date).find('.notes').text(notes);
         }
         days += trip.cities[i].days;
     }
@@ -428,4 +480,29 @@ function UpdateCalendar(){
 function ShowMessage(text){
     $('#saveResult').stop().css('opacity',1).text(text).fadeOut(5500);
 
+}
+
+function PopUpNote(div){
+    $('#notePopup').show();
+    $('html').css('overflow-y','hidden').css('background-color','gray');
+
+}
+
+function ClosePopups(){
+    $('#savedTrips').hide();
+    $('#notePopup').hide();
+    $('html').css('overflow-y','scroll').css('background-color','white');
+
+}
+
+function LinkifyText(text){
+    let urlRegex = /(http|ftp|https):\/\/([\w_-]+(?:(?:\.[\w_-]+)+))([\w.,@?^=%&:\/~+#-]*[\w@?^=%&\/~+#-])/gi;
+    const replacedText = text.replace(urlRegex, function (match) {
+      if (!match.startsWith('http')) {
+        return '<a href="https://' + match + '" target="_blank">' + match + '</a>';
+      } else {
+        return '<a href="' + match + '" target="_blank">' + match + '</a>';
+      }
+    });
+    return replacedText;
 }

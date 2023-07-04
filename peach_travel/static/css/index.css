@@ -25,7 +25,7 @@ body {
 
     display:none;
 }
-#savedTrips {
+#savedTrips, #notePopup {
     position:fixed;
     display:none;
     width:80%;
@@ -36,9 +36,11 @@ body {
     background-color:#eee;
     overflow-y:scroll;
     transition: all 0.3s;
+    z-index:100;
 }
 
-#savedTrips .header {
+#savedTrips .header, #notePopup .header {
+    position:absolute;top:0;
     text-align:center;
 }
 
@@ -46,7 +48,7 @@ body {
     position:relative;
     width:70%;
     left:15%;
-list-style: none;
+    list-style: none;
     padding-left: 0;
     }
 
@@ -64,7 +66,8 @@ list-style: none;
 #saveResult{
     color:green;
 }
-#closeTrips {
+
+.closePopups {
    position:relative;
    top:0;
    left:calc(100% - 34px);
@@ -77,10 +80,10 @@ list-style: none;
     border-radius:17px;
 }
 
-#closeTrips:hover {
+.closePopups:hover {
     cursor:pointer;
+}
 
-    }
 #container {
     position:relative;
     margin-top:60px;
@@ -97,6 +100,7 @@ list-style: none;
     text-align:center;
 }
 .box {
+    position:relative;
   width: calc(100% / 7); /* Set the width to occupy 1/7th of the container */
   height:100px;
   background-color: #e0e0e0;
@@ -174,3 +178,33 @@ button:hover{
     background-color:#c33;
     float:right;
 }
+
+.note {
+    position:absolute;
+    top:50%;
+    width:100%;
+    height:50%;
+    white-space: nowrap;
+    overflow:hidden;
+    outline:1px dotted blue;
+}
+
+#notePopup .popupButtons {
+    position: relative;
+    left: calc(50% - 200px);
+    top: calc(100% - 50px);
+    width: 400px;
+    text-align: center;
+    }
+
+#noteText {
+    position:absolute;left:80px;
+    width:80%;
+    height:50%;
+    outline:1px dotted black;
+}
+#noteTextArea {
+    position:absolute;left:80px;
+    display:none;
+}
+#saveNote, #doneNote {display:none;}

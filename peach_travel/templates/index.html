@@ -14,6 +14,18 @@
 
 <div id="container">
     <div class="calendar"></div>
+    <div id="notePopup">
+<!--        <div class="closePopups">X</div> -->
+        <div class="popupButtons">
+            <button id="doneNote">Done Editing</button>
+            <button id="editNote">Edit</button>
+            <button id="saveNote">Save And Close</button>
+            <button id="cancelNote">Cancel And Close</button>
+        </div>
+        <div class="header"><h2>header</h2></div>
+        <div id="noteText"></div>
+        <textarea id="noteTextArea" rows=16 cols=64 > </textarea>
+    </div>
     <div id="menu">
         <div id="hello">
           {% if session %}
@@ -28,7 +40,7 @@
             <p><a href="/login">Login</a></p>
           {% endif %}
             <div id="savedTrips">
-                <div id="closeTrips">X</div>
+                <div class="closePopups">X</div>
                 <div class="header"><h2>{{user}}'s Trips </h2></div>
                 <ul id="savedTripsList"></ul>
             </div>
