@@ -59,6 +59,7 @@ $(document).ready(function(){
     $('#cancelNote').on('click',function(){
         ClosePopups();    
     });
+    $('.closePopups').on('click',function(){ ClosePopups(); });
     $('#editNote').on('click',function(){
         $('#noteText').hide();
         $('#saveNote').show();
